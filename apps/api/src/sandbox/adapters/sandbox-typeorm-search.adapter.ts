@@ -55,6 +55,9 @@ export class SandboxTypeormSearchAdapter implements SandboxSearchAdapter {
     if (filters.regionIds?.length) {
       qb.andWhere('sandbox.region IN (:...regionIds)', { regionIds: filters.regionIds })
     }
+    if (filters.sandboxClass?.length) {
+      qb.andWhere('sandbox.sandboxClass IN (:...sandboxClasses)', { sandboxClasses: filters.sandboxClass })
+    }
     if (filters.isPublic !== undefined) {
       qb.andWhere('sandbox.public = :isPublic', { isPublic: filters.isPublic })
     }

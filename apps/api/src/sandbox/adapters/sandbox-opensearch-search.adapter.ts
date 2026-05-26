@@ -198,6 +198,11 @@ export class SandboxOpenSearchSearchAdapter implements SandboxSearchAdapter, OnM
       must.push({ terms: { region: filters.regionIds } })
     }
 
+    // Sandbox class filter
+    if (filters.sandboxClass?.length) {
+      must.push({ terms: { sandboxClass: filters.sandboxClass } })
+    }
+
     // CPU range filter
     if (filters.minCpu !== undefined || filters.maxCpu !== undefined) {
       must.push({

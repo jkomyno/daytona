@@ -1673,6 +1673,16 @@ paths:
             type: string
           type: array
         style: form
+      - description: List of sandbox classes to filter by
+        explode: true
+        in: query
+        name: sandboxClass
+        required: false
+        schema:
+          items:
+            $ref: "#/components/schemas/SandboxClass"
+          type: array
+        style: form
       - description: Minimum CPU
         explode: true
         in: query
@@ -9759,6 +9769,7 @@ components:
       enum:
       - linux-vm
       - container
+      - android
       type: string
     RegionUsageOverview:
       example:
@@ -10666,6 +10677,7 @@ components:
           enum:
           - linux-vm
           - container
+          - android
           example: linux-vm
           type: string
         state:
@@ -11095,6 +11107,7 @@ components:
           enum:
           - linux-vm
           - container
+          - android
           example: linux-vm
           type: string
         daemonVersion:
