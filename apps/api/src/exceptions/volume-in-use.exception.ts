@@ -6,8 +6,8 @@
 import { ConflictException } from '@nestjs/common'
 import { ApiErrorCode } from '../common/errors/api-error-code.enum'
 
-export class StateChangeInProgressError extends ConflictException {
-  constructor(message = 'Sandbox state change in progress') {
-    super({ message, code: ApiErrorCode.SANDBOX_STATE_CHANGE_IN_PROGRESS })
+export class VolumeInUseError extends ConflictException {
+  constructor(message: string) {
+    super({ message, code: ApiErrorCode.VOLUME_IN_USE })
   }
 }
