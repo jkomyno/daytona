@@ -25,10 +25,16 @@ type CreateOrganizationRegionQuota struct {
 	TotalCpuQuota float32 `json:"totalCpuQuota"`
 	TotalMemoryQuota float32 `json:"totalMemoryQuota"`
 	TotalDiskQuota float32 `json:"totalDiskQuota"`
+	TotalGpuQuota float32 `json:"totalGpuQuota"`
 	MaxCpuPerSandbox NullableFloat32 `json:"maxCpuPerSandbox,omitempty"`
 	MaxMemoryPerSandbox NullableFloat32 `json:"maxMemoryPerSandbox,omitempty"`
 	MaxDiskPerSandbox NullableFloat32 `json:"maxDiskPerSandbox,omitempty"`
 	MaxDiskPerNonEphemeralSandbox NullableFloat32 `json:"maxDiskPerNonEphemeralSandbox,omitempty"`
+	MaxCpuPerGpuSandbox NullableFloat32 `json:"maxCpuPerGpuSandbox,omitempty"`
+	MaxMemoryPerGpuSandbox NullableFloat32 `json:"maxMemoryPerGpuSandbox,omitempty"`
+	MaxDiskPerGpuSandbox NullableFloat32 `json:"maxDiskPerGpuSandbox,omitempty"`
+	MaxCpuPerNonEphemeralSandbox NullableFloat32 `json:"maxCpuPerNonEphemeralSandbox,omitempty"`
+	MaxMemoryPerNonEphemeralSandbox NullableFloat32 `json:"maxMemoryPerNonEphemeralSandbox,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -38,12 +44,13 @@ type _CreateOrganizationRegionQuota CreateOrganizationRegionQuota
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewCreateOrganizationRegionQuota(sandboxClass SandboxClass, totalCpuQuota float32, totalMemoryQuota float32, totalDiskQuota float32) *CreateOrganizationRegionQuota {
+func NewCreateOrganizationRegionQuota(sandboxClass SandboxClass, totalCpuQuota float32, totalMemoryQuota float32, totalDiskQuota float32, totalGpuQuota float32) *CreateOrganizationRegionQuota {
 	this := CreateOrganizationRegionQuota{}
 	this.SandboxClass = sandboxClass
 	this.TotalCpuQuota = totalCpuQuota
 	this.TotalMemoryQuota = totalMemoryQuota
 	this.TotalDiskQuota = totalDiskQuota
+	this.TotalGpuQuota = totalGpuQuota
 	return &this
 }
 
@@ -149,6 +156,30 @@ func (o *CreateOrganizationRegionQuota) GetTotalDiskQuotaOk() (*float32, bool) {
 // SetTotalDiskQuota sets field value
 func (o *CreateOrganizationRegionQuota) SetTotalDiskQuota(v float32) {
 	o.TotalDiskQuota = v
+}
+
+// GetTotalGpuQuota returns the TotalGpuQuota field value
+func (o *CreateOrganizationRegionQuota) GetTotalGpuQuota() float32 {
+	if o == nil {
+		var ret float32
+		return ret
+	}
+
+	return o.TotalGpuQuota
+}
+
+// GetTotalGpuQuotaOk returns a tuple with the TotalGpuQuota field value
+// and a boolean to check if the value has been set.
+func (o *CreateOrganizationRegionQuota) GetTotalGpuQuotaOk() (*float32, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.TotalGpuQuota, true
+}
+
+// SetTotalGpuQuota sets field value
+func (o *CreateOrganizationRegionQuota) SetTotalGpuQuota(v float32) {
+	o.TotalGpuQuota = v
 }
 
 // GetMaxCpuPerSandbox returns the MaxCpuPerSandbox field value if set, zero value otherwise (both if not set or set to explicit null).
@@ -319,6 +350,216 @@ func (o *CreateOrganizationRegionQuota) UnsetMaxDiskPerNonEphemeralSandbox() {
 	o.MaxDiskPerNonEphemeralSandbox.Unset()
 }
 
+// GetMaxCpuPerGpuSandbox returns the MaxCpuPerGpuSandbox field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *CreateOrganizationRegionQuota) GetMaxCpuPerGpuSandbox() float32 {
+	if o == nil || IsNil(o.MaxCpuPerGpuSandbox.Get()) {
+		var ret float32
+		return ret
+	}
+	return *o.MaxCpuPerGpuSandbox.Get()
+}
+
+// GetMaxCpuPerGpuSandboxOk returns a tuple with the MaxCpuPerGpuSandbox field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *CreateOrganizationRegionQuota) GetMaxCpuPerGpuSandboxOk() (*float32, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.MaxCpuPerGpuSandbox.Get(), o.MaxCpuPerGpuSandbox.IsSet()
+}
+
+// HasMaxCpuPerGpuSandbox returns a boolean if a field has been set.
+func (o *CreateOrganizationRegionQuota) HasMaxCpuPerGpuSandbox() bool {
+	if o != nil && o.MaxCpuPerGpuSandbox.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetMaxCpuPerGpuSandbox gets a reference to the given NullableFloat32 and assigns it to the MaxCpuPerGpuSandbox field.
+func (o *CreateOrganizationRegionQuota) SetMaxCpuPerGpuSandbox(v float32) {
+	o.MaxCpuPerGpuSandbox.Set(&v)
+}
+// SetMaxCpuPerGpuSandboxNil sets the value for MaxCpuPerGpuSandbox to be an explicit nil
+func (o *CreateOrganizationRegionQuota) SetMaxCpuPerGpuSandboxNil() {
+	o.MaxCpuPerGpuSandbox.Set(nil)
+}
+
+// UnsetMaxCpuPerGpuSandbox ensures that no value is present for MaxCpuPerGpuSandbox, not even an explicit nil
+func (o *CreateOrganizationRegionQuota) UnsetMaxCpuPerGpuSandbox() {
+	o.MaxCpuPerGpuSandbox.Unset()
+}
+
+// GetMaxMemoryPerGpuSandbox returns the MaxMemoryPerGpuSandbox field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *CreateOrganizationRegionQuota) GetMaxMemoryPerGpuSandbox() float32 {
+	if o == nil || IsNil(o.MaxMemoryPerGpuSandbox.Get()) {
+		var ret float32
+		return ret
+	}
+	return *o.MaxMemoryPerGpuSandbox.Get()
+}
+
+// GetMaxMemoryPerGpuSandboxOk returns a tuple with the MaxMemoryPerGpuSandbox field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *CreateOrganizationRegionQuota) GetMaxMemoryPerGpuSandboxOk() (*float32, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.MaxMemoryPerGpuSandbox.Get(), o.MaxMemoryPerGpuSandbox.IsSet()
+}
+
+// HasMaxMemoryPerGpuSandbox returns a boolean if a field has been set.
+func (o *CreateOrganizationRegionQuota) HasMaxMemoryPerGpuSandbox() bool {
+	if o != nil && o.MaxMemoryPerGpuSandbox.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetMaxMemoryPerGpuSandbox gets a reference to the given NullableFloat32 and assigns it to the MaxMemoryPerGpuSandbox field.
+func (o *CreateOrganizationRegionQuota) SetMaxMemoryPerGpuSandbox(v float32) {
+	o.MaxMemoryPerGpuSandbox.Set(&v)
+}
+// SetMaxMemoryPerGpuSandboxNil sets the value for MaxMemoryPerGpuSandbox to be an explicit nil
+func (o *CreateOrganizationRegionQuota) SetMaxMemoryPerGpuSandboxNil() {
+	o.MaxMemoryPerGpuSandbox.Set(nil)
+}
+
+// UnsetMaxMemoryPerGpuSandbox ensures that no value is present for MaxMemoryPerGpuSandbox, not even an explicit nil
+func (o *CreateOrganizationRegionQuota) UnsetMaxMemoryPerGpuSandbox() {
+	o.MaxMemoryPerGpuSandbox.Unset()
+}
+
+// GetMaxDiskPerGpuSandbox returns the MaxDiskPerGpuSandbox field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *CreateOrganizationRegionQuota) GetMaxDiskPerGpuSandbox() float32 {
+	if o == nil || IsNil(o.MaxDiskPerGpuSandbox.Get()) {
+		var ret float32
+		return ret
+	}
+	return *o.MaxDiskPerGpuSandbox.Get()
+}
+
+// GetMaxDiskPerGpuSandboxOk returns a tuple with the MaxDiskPerGpuSandbox field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *CreateOrganizationRegionQuota) GetMaxDiskPerGpuSandboxOk() (*float32, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.MaxDiskPerGpuSandbox.Get(), o.MaxDiskPerGpuSandbox.IsSet()
+}
+
+// HasMaxDiskPerGpuSandbox returns a boolean if a field has been set.
+func (o *CreateOrganizationRegionQuota) HasMaxDiskPerGpuSandbox() bool {
+	if o != nil && o.MaxDiskPerGpuSandbox.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetMaxDiskPerGpuSandbox gets a reference to the given NullableFloat32 and assigns it to the MaxDiskPerGpuSandbox field.
+func (o *CreateOrganizationRegionQuota) SetMaxDiskPerGpuSandbox(v float32) {
+	o.MaxDiskPerGpuSandbox.Set(&v)
+}
+// SetMaxDiskPerGpuSandboxNil sets the value for MaxDiskPerGpuSandbox to be an explicit nil
+func (o *CreateOrganizationRegionQuota) SetMaxDiskPerGpuSandboxNil() {
+	o.MaxDiskPerGpuSandbox.Set(nil)
+}
+
+// UnsetMaxDiskPerGpuSandbox ensures that no value is present for MaxDiskPerGpuSandbox, not even an explicit nil
+func (o *CreateOrganizationRegionQuota) UnsetMaxDiskPerGpuSandbox() {
+	o.MaxDiskPerGpuSandbox.Unset()
+}
+
+// GetMaxCpuPerNonEphemeralSandbox returns the MaxCpuPerNonEphemeralSandbox field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *CreateOrganizationRegionQuota) GetMaxCpuPerNonEphemeralSandbox() float32 {
+	if o == nil || IsNil(o.MaxCpuPerNonEphemeralSandbox.Get()) {
+		var ret float32
+		return ret
+	}
+	return *o.MaxCpuPerNonEphemeralSandbox.Get()
+}
+
+// GetMaxCpuPerNonEphemeralSandboxOk returns a tuple with the MaxCpuPerNonEphemeralSandbox field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *CreateOrganizationRegionQuota) GetMaxCpuPerNonEphemeralSandboxOk() (*float32, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.MaxCpuPerNonEphemeralSandbox.Get(), o.MaxCpuPerNonEphemeralSandbox.IsSet()
+}
+
+// HasMaxCpuPerNonEphemeralSandbox returns a boolean if a field has been set.
+func (o *CreateOrganizationRegionQuota) HasMaxCpuPerNonEphemeralSandbox() bool {
+	if o != nil && o.MaxCpuPerNonEphemeralSandbox.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetMaxCpuPerNonEphemeralSandbox gets a reference to the given NullableFloat32 and assigns it to the MaxCpuPerNonEphemeralSandbox field.
+func (o *CreateOrganizationRegionQuota) SetMaxCpuPerNonEphemeralSandbox(v float32) {
+	o.MaxCpuPerNonEphemeralSandbox.Set(&v)
+}
+// SetMaxCpuPerNonEphemeralSandboxNil sets the value for MaxCpuPerNonEphemeralSandbox to be an explicit nil
+func (o *CreateOrganizationRegionQuota) SetMaxCpuPerNonEphemeralSandboxNil() {
+	o.MaxCpuPerNonEphemeralSandbox.Set(nil)
+}
+
+// UnsetMaxCpuPerNonEphemeralSandbox ensures that no value is present for MaxCpuPerNonEphemeralSandbox, not even an explicit nil
+func (o *CreateOrganizationRegionQuota) UnsetMaxCpuPerNonEphemeralSandbox() {
+	o.MaxCpuPerNonEphemeralSandbox.Unset()
+}
+
+// GetMaxMemoryPerNonEphemeralSandbox returns the MaxMemoryPerNonEphemeralSandbox field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *CreateOrganizationRegionQuota) GetMaxMemoryPerNonEphemeralSandbox() float32 {
+	if o == nil || IsNil(o.MaxMemoryPerNonEphemeralSandbox.Get()) {
+		var ret float32
+		return ret
+	}
+	return *o.MaxMemoryPerNonEphemeralSandbox.Get()
+}
+
+// GetMaxMemoryPerNonEphemeralSandboxOk returns a tuple with the MaxMemoryPerNonEphemeralSandbox field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *CreateOrganizationRegionQuota) GetMaxMemoryPerNonEphemeralSandboxOk() (*float32, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.MaxMemoryPerNonEphemeralSandbox.Get(), o.MaxMemoryPerNonEphemeralSandbox.IsSet()
+}
+
+// HasMaxMemoryPerNonEphemeralSandbox returns a boolean if a field has been set.
+func (o *CreateOrganizationRegionQuota) HasMaxMemoryPerNonEphemeralSandbox() bool {
+	if o != nil && o.MaxMemoryPerNonEphemeralSandbox.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetMaxMemoryPerNonEphemeralSandbox gets a reference to the given NullableFloat32 and assigns it to the MaxMemoryPerNonEphemeralSandbox field.
+func (o *CreateOrganizationRegionQuota) SetMaxMemoryPerNonEphemeralSandbox(v float32) {
+	o.MaxMemoryPerNonEphemeralSandbox.Set(&v)
+}
+// SetMaxMemoryPerNonEphemeralSandboxNil sets the value for MaxMemoryPerNonEphemeralSandbox to be an explicit nil
+func (o *CreateOrganizationRegionQuota) SetMaxMemoryPerNonEphemeralSandboxNil() {
+	o.MaxMemoryPerNonEphemeralSandbox.Set(nil)
+}
+
+// UnsetMaxMemoryPerNonEphemeralSandbox ensures that no value is present for MaxMemoryPerNonEphemeralSandbox, not even an explicit nil
+func (o *CreateOrganizationRegionQuota) UnsetMaxMemoryPerNonEphemeralSandbox() {
+	o.MaxMemoryPerNonEphemeralSandbox.Unset()
+}
+
 func (o CreateOrganizationRegionQuota) MarshalJSON() ([]byte, error) {
 	toSerialize,err := o.ToMap()
 	if err != nil {
@@ -333,6 +574,7 @@ func (o CreateOrganizationRegionQuota) ToMap() (map[string]interface{}, error) {
 	toSerialize["totalCpuQuota"] = o.TotalCpuQuota
 	toSerialize["totalMemoryQuota"] = o.TotalMemoryQuota
 	toSerialize["totalDiskQuota"] = o.TotalDiskQuota
+	toSerialize["totalGpuQuota"] = o.TotalGpuQuota
 	if o.MaxCpuPerSandbox.IsSet() {
 		toSerialize["maxCpuPerSandbox"] = o.MaxCpuPerSandbox.Get()
 	}
@@ -344,6 +586,21 @@ func (o CreateOrganizationRegionQuota) ToMap() (map[string]interface{}, error) {
 	}
 	if o.MaxDiskPerNonEphemeralSandbox.IsSet() {
 		toSerialize["maxDiskPerNonEphemeralSandbox"] = o.MaxDiskPerNonEphemeralSandbox.Get()
+	}
+	if o.MaxCpuPerGpuSandbox.IsSet() {
+		toSerialize["maxCpuPerGpuSandbox"] = o.MaxCpuPerGpuSandbox.Get()
+	}
+	if o.MaxMemoryPerGpuSandbox.IsSet() {
+		toSerialize["maxMemoryPerGpuSandbox"] = o.MaxMemoryPerGpuSandbox.Get()
+	}
+	if o.MaxDiskPerGpuSandbox.IsSet() {
+		toSerialize["maxDiskPerGpuSandbox"] = o.MaxDiskPerGpuSandbox.Get()
+	}
+	if o.MaxCpuPerNonEphemeralSandbox.IsSet() {
+		toSerialize["maxCpuPerNonEphemeralSandbox"] = o.MaxCpuPerNonEphemeralSandbox.Get()
+	}
+	if o.MaxMemoryPerNonEphemeralSandbox.IsSet() {
+		toSerialize["maxMemoryPerNonEphemeralSandbox"] = o.MaxMemoryPerNonEphemeralSandbox.Get()
 	}
 
 	for key, value := range o.AdditionalProperties {
@@ -362,6 +619,7 @@ func (o *CreateOrganizationRegionQuota) UnmarshalJSON(data []byte) (err error) {
 		"totalCpuQuota",
 		"totalMemoryQuota",
 		"totalDiskQuota",
+		"totalGpuQuota",
 	}
 
 	allProperties := make(map[string]interface{})
@@ -395,10 +653,16 @@ func (o *CreateOrganizationRegionQuota) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "totalCpuQuota")
 		delete(additionalProperties, "totalMemoryQuota")
 		delete(additionalProperties, "totalDiskQuota")
+		delete(additionalProperties, "totalGpuQuota")
 		delete(additionalProperties, "maxCpuPerSandbox")
 		delete(additionalProperties, "maxMemoryPerSandbox")
 		delete(additionalProperties, "maxDiskPerSandbox")
 		delete(additionalProperties, "maxDiskPerNonEphemeralSandbox")
+		delete(additionalProperties, "maxCpuPerGpuSandbox")
+		delete(additionalProperties, "maxMemoryPerGpuSandbox")
+		delete(additionalProperties, "maxDiskPerGpuSandbox")
+		delete(additionalProperties, "maxCpuPerNonEphemeralSandbox")
+		delete(additionalProperties, "maxMemoryPerNonEphemeralSandbox")
 		o.AdditionalProperties = additionalProperties
 	}
 

@@ -14733,13 +14733,19 @@ components:
     CreateOrganizationRegionQuota:
       example:
         totalCpuQuota: 0.8008281904610115
-        maxCpuPerSandbox: 5.962133916683182
-        maxDiskPerSandbox: 2.3021358869347655
-        maxDiskPerNonEphemeralSandbox: 7.061401241503109
-        maxMemoryPerSandbox: 5.637376656633329
+        maxDiskPerGpuSandbox: 4.145608029883936
+        totalGpuQuota: 5.962133916683182
+        maxMemoryPerNonEphemeralSandbox: 1.2315135367772556
+        maxCpuPerNonEphemeralSandbox: 7.386281948385884
+        maxCpuPerGpuSandbox: 3.616076749251911
+        maxCpuPerSandbox: 5.637376656633329
+        maxDiskPerSandbox: 7.061401241503109
+        maxDiskPerNonEphemeralSandbox: 9.301444243932576
+        maxMemoryPerSandbox: 2.3021358869347655
         totalMemoryQuota: 6.027456183070403
         totalDiskQuota: 1.4658129805029452
         sandboxClass: ""
+        maxMemoryPerGpuSandbox: 2.027123023002322
       properties:
         sandboxClass:
           allOf:
@@ -14749,6 +14755,8 @@ components:
         totalMemoryQuota:
           type: number
         totalDiskQuota:
+          type: number
+        totalGpuQuota:
           type: number
         maxCpuPerSandbox:
           nullable: true
@@ -14762,10 +14770,26 @@ components:
         maxDiskPerNonEphemeralSandbox:
           nullable: true
           type: number
+        maxCpuPerGpuSandbox:
+          nullable: true
+          type: number
+        maxMemoryPerGpuSandbox:
+          nullable: true
+          type: number
+        maxDiskPerGpuSandbox:
+          nullable: true
+          type: number
+        maxCpuPerNonEphemeralSandbox:
+          nullable: true
+          type: number
+        maxMemoryPerNonEphemeralSandbox:
+          nullable: true
+          type: number
       required:
       - sandboxClass
       - totalCpuQuota
       - totalDiskQuota
+      - totalGpuQuota
       - totalMemoryQuota
       type: object
     WebhookAppPortalAccess:
