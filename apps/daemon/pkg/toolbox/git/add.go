@@ -21,6 +21,9 @@ import (
 //	@Produce		json
 //	@Param			request	body	GitAddRequest	true	"Add files request"
 //	@Success		200
+//	@Failure		400	{object}	common.ErrorResponse
+//	@Failure		409	{object}	common.ErrorResponse
+//	@Failure		500	{object}	common.ErrorResponse
 //	@Router			/git/add [post]
 //
 //	@id				AddFiles

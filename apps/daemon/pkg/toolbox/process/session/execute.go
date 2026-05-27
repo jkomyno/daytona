@@ -11,6 +11,7 @@ import (
 
 	common_errors "github.com/daytonaio/common-go/pkg/errors"
 	"github.com/daytonaio/daemon/internal/util"
+	"github.com/daytonaio/daemon/pkg/common"
 	"github.com/daytonaio/daemon/pkg/session"
 	"github.com/gin-gonic/gin"
 )
@@ -26,6 +27,10 @@ import (
 //	@Param			request		body		SessionExecuteRequest	true	"Command execution request"
 //	@Success		200			{object}	SessionExecuteResponse
 //	@Success		202			{object}	SessionExecuteResponse
+//	@Failure		400			{object}	common.ErrorResponse
+//	@Failure		404			{object}	common.ErrorResponse
+//	@Failure		409			{object}	common.ErrorResponse
+//	@Failure		500			{object}	common.ErrorResponse
 //	@Router			/process/session/{sessionId}/exec [post]
 //
 //	@id				SessionExecuteCommand
@@ -33,23 +38,21 @@ func (s *SessionController) SessionExecuteCommand(c *gin.Context) {
 	sessionId := c.Param("sessionId")
 
 	if sessionId == util.EntrypointSessionID {
-		c.Error(common_errors.NewBadRequestError(errors.New("can't execute command in entrypoint session")))
+		_ = c.Error(common_errors.NewBadRequestError(errors.New("can't execute command in entrypoint session")))
 		return
 	}
 
 	var request SessionExecuteRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("invalid request body: %w", err))
+		_ = c.Error(common_errors.NewInvalidBodyRequestError(fmt.Errorf("invalid request body: %w", err)))
 		return
 	}
 
-	// Validate command is not empty (if not already handled by binding)
 	if strings.TrimSpace(request.Command) == "" {
-		c.AbortWithError(http.StatusBadRequest, errors.New("command cannot be empty"))
+		_ = c.Error(common_errors.NewCustomError(http.StatusBadRequest, "command cannot be empty", string(common.CodeProcessInvalidCommand)))
 		return
 	}
 
-	// Handle backward compatibility for "async" field
 	if request.Async {
 		request.RunAsync = true
 	}
@@ -66,7 +69,7 @@ func (s *SessionController) SessionExecuteCommand(c *gin.Context) {
 
 	executeResult, err := s.sessionService.Execute(sessionId, util.EmptyCommandID, request.Command, request.RunAsync, isCombinedOutput, skipServerDemux, request.SuppressInputEcho)
 	if err != nil {
-		c.Error(fmt.Errorf("failed to execute command: %w", err))
+		_ = c.Error(fmt.Errorf("failed to execute command: %w", err))
 		return
 	}
 

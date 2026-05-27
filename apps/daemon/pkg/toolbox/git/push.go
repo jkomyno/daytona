@@ -23,6 +23,11 @@ import (
 //	@Produce		json
 //	@Param			request	body	GitRepoRequest	true	"Push request"
 //	@Success		200
+//	@Failure		400	{object}	common.ErrorResponse
+//	@Failure		401	{object}	common.ErrorResponse
+//	@Failure		403	{object}	common.ErrorResponse
+//	@Failure		409	{object}	common.ErrorResponse
+//	@Failure		500	{object}	common.ErrorResponse
 //	@Router			/git/push [post]
 //
 //	@id				PushChanges

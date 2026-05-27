@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/daytonaio/daemon/pkg/common"
+	common_errors "github.com/daytonaio/common-go/pkg/errors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -47,15 +48,18 @@ func (cw *ctxWriter) Write(p []byte) (int, error) {
 //	@Produce		multipart/form-data
 //	@Param			downloadFiles	body		FilesDownloadRequest	true	"Paths of files to download"
 //	@Success		200				{object}	gin.H					"Multipart response with file parts and JSON error parts"
+//	@Failure		400				{object}	common.ErrorResponse
+//	@Failure		403				{object}	common.ErrorResponse
+//	@Failure		404				{object}	common.ErrorResponse
+//	@Failure		500				{object}	common.ErrorResponse
 //	@Router			/files/bulk-download [post]
 //
 //	@id				DownloadFiles
 func DownloadFiles(c *gin.Context) {
 	var req FilesDownloadRequest
 	if err := c.BindJSON(&req); err != nil || len(req.Paths) == 0 {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "request body must be {\"paths\": [ ... ]} and non-empty",
-		})
+		_ = c.Error(common_errors.NewBadRequestError(errors.New("request body must be {\"paths\": [ ... ]} and non-empty")))
+		c.Abort()
 		return
 	}
 
@@ -65,9 +69,8 @@ func DownloadFiles(c *gin.Context) {
 
 	mw := multipart.NewWriter(c.Writer)
 	if err := mw.SetBoundary(boundary); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": "failed to set multipart boundary",
-		})
+		_ = c.Error(common_errors.NewInternalServerError(errors.New("failed to set multipart boundary")))
+		c.Abort()
 		return
 	}
 	defer mw.Close() // ensure final boundary is written
@@ -189,27 +192,27 @@ func multipartContentDisposition(formName string, path string) string {
 		formName, toLatin1(path), encodeRFC5987(path))
 }
 
-func classifyPathStatError(path string, err error) (int, string, string) {
+func classifyPathStatError(path string, err error) (int, common.DaemonErrorCode, string) {
 	// Preserve a specific not-found classification for missing files.
 	if errors.Is(err, os.ErrNotExist) {
-		return http.StatusNotFound, "FILE_NOT_FOUND", fmt.Sprintf("file not found: %s", path)
+		return http.StatusNotFound, common.CodeFileNotFound, fmt.Sprintf("file not found: %s", path)
 	}
 
 	if errors.Is(err, os.ErrPermission) {
-		return http.StatusForbidden, "FILE_ACCESS_DENIED", fmt.Sprintf("permission denied: %s", path)
+		return http.StatusForbidden, common.CodeFileAccessDenied, fmt.Sprintf("permission denied: %s", path)
 	}
 
 	if errors.Is(err, os.ErrInvalid) {
-		return http.StatusBadRequest, "INVALID_FILE_PATH", fmt.Sprintf("invalid file path: %s", path)
+		return http.StatusBadRequest, common.CodeInvalidFilePath, fmt.Sprintf("invalid file path: %s", path)
 	}
 
-	return http.StatusInternalServerError, "FILE_READ_FAILED", fmt.Sprintf("failed to access file: %v", err)
+	return http.StatusInternalServerError, "", fmt.Sprintf("failed to access file: %v", err)
 }
 
 func classifyOpenFileError(ctx *gin.Context, path string, err error) common.ErrorResponse {
 	statusCode, errorCode, message := classifyPathStatError(path, err)
 	// Use a more specific fallback message for open errors.
-	if errorCode == "FILE_READ_FAILED" {
+	if errorCode == "" {
 		message = fmt.Sprintf("failed to open file: %v", err)
 	}
 	return newFileDownloadErrorResponse(ctx, path, statusCode, errorCode, message)
@@ -219,12 +222,13 @@ func newFileDownloadErrorResponse(
 	ctx *gin.Context,
 	path string,
 	statusCode int,
-	code string,
+	code common.DaemonErrorCode,
 	message string,
 ) common.ErrorResponse {
 	return common.ErrorResponse{
 		StatusCode: statusCode,
 		Message:    message,
+		Source:     "DAYTONA_DAEMON",
 		Code:       code,
 		Timestamp:  time.Now().UTC(),
 		Path:       path,

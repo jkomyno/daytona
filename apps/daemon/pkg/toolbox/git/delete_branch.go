@@ -21,6 +21,9 @@ import (
 //	@Produce		json
 //	@Param			request	body	GitDeleteBranchRequest	true	"Delete branch request"
 //	@Success		204
+//	@Failure		400	{object}	common.ErrorResponse
+//	@Failure		404	{object}	common.ErrorResponse
+//	@Failure		500	{object}	common.ErrorResponse
 //	@Router			/git/branches [delete]
 //
 //	@id				DeleteBranch

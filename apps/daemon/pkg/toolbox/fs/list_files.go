@@ -8,6 +8,8 @@ import (
 	"os"
 	"path/filepath"
 
+	common_errors "github.com/daytonaio/common-go/pkg/errors"
+	"github.com/daytonaio/daemon/pkg/common"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,8 +19,11 @@ import (
 //	@Description	List files and directories in the specified path
 //	@Tags			file-system
 //	@Produce		json
-//	@Param			path	query	string	false	"Directory path to list (defaults to working directory)"
-//	@Success		200		{array}	FileInfo
+//	@Param			path	query		string	false	"Directory path to list (defaults to working directory)"
+//	@Success		200		{array}		FileInfo
+//	@Failure		400		{object}	common.ErrorResponse
+//	@Failure		403		{object}	common.ErrorResponse
+//	@Failure		404		{object}	common.ErrorResponse
 //	@Router			/files [get]
 //
 //	@id				ListFiles
@@ -31,14 +36,14 @@ func ListFiles(c *gin.Context) {
 	files, err := os.ReadDir(path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			c.AbortWithError(http.StatusNotFound, err)
+			_ = c.Error(common_errors.NewCustomError(http.StatusNotFound, err.Error(), string(common.CodeFileNotFound)))
 			return
 		}
 		if os.IsPermission(err) {
-			c.AbortWithError(http.StatusForbidden, err)
+			_ = c.Error(common_errors.NewCustomError(http.StatusForbidden, err.Error(), string(common.CodeFileAccessDenied)))
 			return
 		}
-		c.AbortWithError(http.StatusBadRequest, err)
+		_ = c.Error(common_errors.NewBadRequestError(err))
 		return
 	}
 

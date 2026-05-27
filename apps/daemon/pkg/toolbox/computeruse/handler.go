@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 
+	common_errors "github.com/daytonaio/common-go/pkg/errors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,19 +28,15 @@ type Handler struct {
 func (h *Handler) StartComputerUse(ctx *gin.Context) {
 	_, err := h.ComputerUse.Start()
 	if err != nil {
-		ctx.JSON(http.StatusServiceUnavailable, gin.H{
-			"error":   "Failed to start computer use",
-			"details": err.Error(),
-		})
+	_ = ctx.Error(newComputerUseError(http.StatusServiceUnavailable, fmt.Sprintf("failed to start computer use: %s", err.Error()), CodeComputerUseOperationFailed))
+		ctx.Abort()
 		return
 	}
 
 	status, err := h.ComputerUse.GetProcessStatus()
 	if err != nil {
-		ctx.JSON(http.StatusServiceUnavailable, gin.H{
-			"error":   "Failed to get computer use status",
-			"details": err.Error(),
-		})
+	_ = ctx.Error(newComputerUseError(http.StatusServiceUnavailable, fmt.Sprintf("failed to get computer use status: %s", err.Error()), CodeComputerUseOperationFailed))
+		ctx.Abort()
 		return
 	}
 
@@ -62,19 +59,15 @@ func (h *Handler) StartComputerUse(ctx *gin.Context) {
 func (h *Handler) StopComputerUse(ctx *gin.Context) {
 	_, err := h.ComputerUse.Stop()
 	if err != nil {
-		ctx.JSON(http.StatusServiceUnavailable, gin.H{
-			"error":   "Failed to stop computer use",
-			"details": err.Error(),
-		})
+	_ = ctx.Error(newComputerUseError(http.StatusServiceUnavailable, fmt.Sprintf("failed to stop computer use: %s", err.Error()), CodeComputerUseOperationFailed))
+		ctx.Abort()
 		return
 	}
 
 	status, err := h.ComputerUse.GetProcessStatus()
 	if err != nil {
-		ctx.JSON(http.StatusServiceUnavailable, gin.H{
-			"error":   "Failed to get computer use status",
-			"details": err.Error(),
-		})
+	_ = ctx.Error(newComputerUseError(http.StatusServiceUnavailable, fmt.Sprintf("failed to get computer use status: %s", err.Error()), CodeComputerUseOperationFailed))
+		ctx.Abort()
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
@@ -96,10 +89,8 @@ func (h *Handler) StopComputerUse(ctx *gin.Context) {
 func (h *Handler) GetComputerUseStatus(ctx *gin.Context) {
 	status, err := h.ComputerUse.GetStatus()
 	if err != nil {
-		ctx.JSON(http.StatusServiceUnavailable, gin.H{
-			"error":   "Failed to get computer use status",
-			"details": err.Error(),
-		})
+	_ = ctx.Error(newComputerUseError(http.StatusServiceUnavailable, fmt.Sprintf("failed to get computer use status: %s", err.Error()), CodeComputerUseOperationFailed))
+		ctx.Abort()
 		return
 	}
 	if status == nil {
@@ -129,10 +120,8 @@ func (h *Handler) GetProcessStatus(ctx *gin.Context) {
 	}
 	isRunning, err := h.ComputerUse.IsProcessRunning(req)
 	if err != nil {
-		ctx.JSON(http.StatusServiceUnavailable, gin.H{
-			"error":   "Failed to get process status",
-			"details": err.Error(),
-		})
+	_ = ctx.Error(newComputerUseError(http.StatusServiceUnavailable, fmt.Sprintf("failed to get process status: %s", err.Error()), CodeComputerUseOperationFailed))
+		ctx.Abort()
 		return
 	}
 
@@ -161,9 +150,8 @@ func (h *Handler) RestartProcess(ctx *gin.Context) {
 	_, err := h.ComputerUse.RestartProcess(req)
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		_ = ctx.Error(common_errors.NewBadRequestError(err))
+		ctx.Abort()
 		return
 	}
 
@@ -192,9 +180,8 @@ func (h *Handler) GetProcessLogs(ctx *gin.Context) {
 	logs, err := h.ComputerUse.GetProcessLogs(req)
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		_ = ctx.Error(common_errors.NewBadRequestError(err))
+		ctx.Abort()
 		return
 	}
 
@@ -223,9 +210,8 @@ func (h *Handler) GetProcessErrors(ctx *gin.Context) {
 	errors, err := h.ComputerUse.GetProcessErrors(req)
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		_ = ctx.Error(common_errors.NewBadRequestError(err))
+		ctx.Abort()
 		return
 	}
 

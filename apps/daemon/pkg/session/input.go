@@ -6,9 +6,11 @@ package session
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"strings"
 
+	"github.com/daytonaio/daemon/pkg/common"
 	common_errors "github.com/daytonaio/common-go/pkg/errors"
 	"github.com/daytonaio/common-go/pkg/log"
 )
@@ -23,7 +25,7 @@ func (s *SessionService) SendInput(sessionId, commandId string, data string) err
 
 	// Check if the session process is still active
 	if session.cmd.ProcessState != nil && session.cmd.ProcessState.Exited() {
-		return common_errors.NewGoneError(errors.New("session process has exited"))
+		return common_errors.NewCustomError(http.StatusGone, "session process has exited", string(common.CodeSessionEnded))
 	}
 
 	// Verify the command exists
@@ -34,7 +36,7 @@ func (s *SessionService) SendInput(sessionId, commandId string, data string) err
 
 	// Check if the command is still running (exit code not set means still running)
 	if command.ExitCode != nil {
-		return common_errors.NewGoneError(fmt.Errorf("command has already completed with exit code %d", *command.ExitCode))
+		return common_errors.NewCustomError(http.StatusGone, fmt.Sprintf("command has already completed with exit code %d", *command.ExitCode), string(common.CodeSessionEnded))
 	}
 
 	inputFilePath := command.InputFilePath(session.Dir(s.configDir))

@@ -5,7 +5,6 @@ package process
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -31,6 +30,9 @@ import (
 //	@Produce		json
 //	@Param			request	body		ExecuteRequest	true	"Command execution request"
 //	@Success		200		{object}	ExecuteResponse
+//	@Failure		400		{object}	common.ErrorResponse
+//	@Failure		408		{object}	common.ErrorResponse
+//	@Failure		500		{object}	common.ErrorResponse
 //	@Router			/process/execute [post]
 //
 //	@id				ExecuteCommand
@@ -38,17 +40,17 @@ func ExecuteCommand(logger *slog.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request ExecuteRequest
 		if err := c.ShouldBindJSON(&request); err != nil {
-			c.Error(common_errors.NewBadRequestError(fmt.Errorf("invalid request body: %w", err)))
+			_ = c.Error(common_errors.NewInvalidBodyRequestError(fmt.Errorf("invalid request body: %w", err)))
 			return
 		}
 
 		if strings.TrimSpace(request.Command) == "" {
-			c.Error(common_errors.NewBadRequestError(errors.New("command cannot be empty or whitespace-only")))
+			abortWithProcessError(c, fmt.Errorf("%w: command cannot be empty or whitespace-only", ErrProcessInvalidCommand))
 			return
 		}
 
 		if err := common.ValidateEnvKeys(request.Envs); err != nil {
-			c.Error(common_errors.NewBadRequestError(err))
+			abortWithProcessError(c, fmt.Errorf("%w: %s", ErrProcessInvalidCommand, err.Error()))
 			return
 		}
 
@@ -95,7 +97,7 @@ func ExecuteCommand(logger *slog.Logger) gin.HandlerFunc {
 		exitCode, waitErr := childreap.Wait(cmd)
 		output := outBuf.Bytes()
 		if timeoutReached.Load() {
-			c.Error(common_errors.NewRequestTimeoutError(errors.New("command execution timeout")))
+			abortWithProcessError(c, ErrProcessExecutionTimeout)
 			return
 		}
 		if waitErr != nil {

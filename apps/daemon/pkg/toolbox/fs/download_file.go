@@ -10,6 +10,8 @@ import (
 	"os"
 	"path/filepath"
 
+	common_errors "github.com/daytonaio/common-go/pkg/errors"
+	"github.com/daytonaio/daemon/pkg/common"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,40 +21,43 @@ import (
 //	@Description	Download a file by providing its path
 //	@Tags			file-system
 //	@Produce		octet-stream
-//	@Param			path	query	string	true	"File path to download"
-//	@Success		200		{file}	binary
+//	@Param			path	query		string	true	"File path to download"
+//	@Success		200		{file}		binary
+//	@Failure		400		{object}	common.ErrorResponse
+//	@Failure		403		{object}	common.ErrorResponse
+//	@Failure		404		{object}	common.ErrorResponse
 //	@Router			/files/download [get]
 //
 //	@id				DownloadFile
 func DownloadFile(c *gin.Context) {
 	requestedPath := c.Query("path")
 	if requestedPath == "" {
-		c.AbortWithError(http.StatusBadRequest, errors.New("path is required"))
+		_ = c.Error(common_errors.NewBadRequestError(errors.New("path is required")))
 		return
 	}
 
 	absPath, err := filepath.Abs(requestedPath)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("invalid path: %w", err))
+		_ = c.Error(common_errors.NewCustomError(http.StatusBadRequest, fmt.Sprintf("invalid path: %s", err.Error()), string(common.CodeInvalidFilePath)))
 		return
 	}
 
 	fileInfo, err := os.Stat(absPath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			c.AbortWithError(http.StatusNotFound, err)
+			_ = c.Error(common_errors.NewCustomError(http.StatusNotFound, err.Error(), string(common.CodeFileNotFound)))
 			return
 		}
 		if os.IsPermission(err) {
-			c.AbortWithError(http.StatusForbidden, err)
+			_ = c.Error(common_errors.NewCustomError(http.StatusForbidden, err.Error(), string(common.CodeFileAccessDenied)))
 			return
 		}
-		c.AbortWithError(http.StatusBadRequest, err)
+		_ = c.Error(common_errors.NewBadRequestError(err))
 		return
 	}
 
 	if fileInfo.IsDir() {
-		c.AbortWithError(http.StatusBadRequest, errors.New("path must be a file"))
+		_ = c.Error(common_errors.NewBadRequestError(errors.New("path must be a file")))
 		return
 	}
 

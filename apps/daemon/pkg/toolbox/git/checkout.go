@@ -21,6 +21,10 @@ import (
 //	@Produce		json
 //	@Param			request	body	GitCheckoutRequest	true	"Checkout request"
 //	@Success		200
+//	@Failure		400	{object}	common.ErrorResponse
+//	@Failure		404	{object}	common.ErrorResponse
+//	@Failure		409	{object}	common.ErrorResponse
+//	@Failure		500	{object}	common.ErrorResponse
 //	@Router			/git/checkout [post]
 //
 //	@id				CheckoutBranch

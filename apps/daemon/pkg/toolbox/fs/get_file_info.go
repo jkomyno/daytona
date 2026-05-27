@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"syscall"
 
+	common_errors "github.com/daytonaio/common-go/pkg/errors"
+	"github.com/daytonaio/daemon/pkg/common"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,27 +24,30 @@ import (
 //	@Produce		json
 //	@Param			path	query		string	true	"File or directory path"
 //	@Success		200		{object}	FileInfo
+//	@Failure		400		{object}	common.ErrorResponse
+//	@Failure		403		{object}	common.ErrorResponse
+//	@Failure		404		{object}	common.ErrorResponse
 //	@Router			/files/info [get]
 //
 //	@id				GetFileInfo
 func GetFileInfo(c *gin.Context) {
 	path := c.Query("path")
 	if path == "" {
-		c.AbortWithError(http.StatusBadRequest, errors.New("path is required"))
+		_ = c.Error(common_errors.NewBadRequestError(errors.New("path is required")))
 		return
 	}
 
 	info, err := getFileInfo(path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			c.AbortWithError(http.StatusNotFound, err)
+			_ = c.Error(common_errors.NewCustomError(http.StatusNotFound, err.Error(), string(common.CodeFileNotFound)))
 			return
 		}
 		if os.IsPermission(err) {
-			c.AbortWithError(http.StatusForbidden, err)
+			_ = c.Error(common_errors.NewCustomError(http.StatusForbidden, err.Error(), string(common.CodeFileAccessDenied)))
 			return
 		}
-		c.AbortWithError(http.StatusBadRequest, err)
+		_ = c.Error(common_errors.NewBadRequestError(err))
 		return
 	}
 

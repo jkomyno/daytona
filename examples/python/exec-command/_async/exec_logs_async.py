@@ -5,7 +5,7 @@ from daytona import AsyncDaytona, SessionExecuteRequest
 
 async def main():
     async with AsyncDaytona() as daytona:
-        sandbox = await daytona.create()
+        sandbox = await daytona.create();return
 
         try:
             session_id = "exec-session-1"

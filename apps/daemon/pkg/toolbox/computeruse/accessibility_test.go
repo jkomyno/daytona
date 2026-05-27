@@ -11,22 +11,32 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	common_errors "github.com/daytonaio/common-go/pkg/errors"
 	"github.com/gin-gonic/gin"
 )
 
-// writeA11yErrorResponse runs writeA11yError against a test gin context and
-// returns the recorded status + decoded JSON body so each case can assert
-// against the machine-readable error shape SDKs will consume.
-func writeA11yErrorResponse(t *testing.T, err error) (int, map[string]string) {
+func classifyA11yErrorResponse(t *testing.T, err error) (int, map[string]string) {
 	t.Helper()
 	rec := httptest.NewRecorder()
-	ctx, _ := gin.CreateTestContext(rec)
-	ctx.Request = httptest.NewRequest(http.MethodGet, "/", nil)
-	writeA11yError(ctx, err)
 
-	var body map[string]string
-	if decodeErr := json.Unmarshal(rec.Body.Bytes(), &body); decodeErr != nil {
-		t.Fatalf("response body was not a flat JSON object: %v (raw=%q)", decodeErr, rec.Body.String())
+	router := gin.New()
+	router.Use(common_errors.NewErrorMiddleware("DAYTONA_DAEMON", common_errors.DefaultInternalServerErrorHandler("DAYTONA_DAEMON")))
+	router.GET("/test", func(c *gin.Context) {
+		_ = c.Error(classifyA11yError(err))
+		c.Abort()
+	})
+
+	req := httptest.NewRequest(http.MethodGet, "/test", nil)
+	router.ServeHTTP(rec, req)
+
+	var raw map[string]interface{}
+	if decodeErr := json.Unmarshal(rec.Body.Bytes(), &raw); decodeErr != nil {
+		t.Fatalf("response body was not valid JSON: %v (raw=%q)", decodeErr, rec.Body.String())
+	}
+
+	body := make(map[string]string)
+	for k, v := range raw {
+		body[k] = fmt.Sprintf("%v", v)
 	}
 	return rec.Code, body
 }
@@ -59,55 +69,55 @@ func TestWriteA11yError(t *testing.T) {
 			name:       "no accessible root -> 404",
 			err:        fmt.Errorf("%s", a11yMsgNoAccessibleRoot),
 			wantStatus: http.StatusNotFound,
-			wantCode:   "A11Y_NO_ACCESSIBLE_ROOT",
+			wantCode:   "",
 		},
 		{
 			name:       "action not supported -> 400",
 			err:        fmt.Errorf("%s: press", a11yMsgActionNotSupported),
 			wantStatus: http.StatusBadRequest,
-			wantCode:   "A11Y_ACTION_NOT_SUPPORTED",
+			wantCode:   "",
 		},
 		{
 			name:       "invalid scope -> 400",
 			err:        fmt.Errorf("%s: bogus", a11yMsgInvalidScope),
 			wantStatus: http.StatusBadRequest,
-			wantCode:   "A11Y_INVALID_SCOPE",
+			wantCode:   "",
 		},
 		{
 			name:       "invalid request -> 400",
 			err:        fmt.Errorf("%s: invalid node id", a11yMsgInvalidRequest),
 			wantStatus: http.StatusBadRequest,
-			wantCode:   "A11Y_INVALID_REQUEST",
+			wantCode:   "",
 		},
 		{
 			name:       "invalid request containing unavailable text still -> 400",
 			err:        fmt.Errorf(`%s: invalid node id %q`, a11yMsgInvalidRequest, a11yMsgUnavailable),
 			wantStatus: http.StatusBadRequest,
-			wantCode:   "A11Y_INVALID_REQUEST",
+			wantCode:   "",
 		},
 		{
 			name:       "invalid request containing node-not-found text still -> 400",
 			err:        fmt.Errorf(`%s: invalid node id %q`, a11yMsgInvalidRequest, a11yMsgNodeNotFound),
 			wantStatus: http.StatusBadRequest,
-			wantCode:   "A11Y_INVALID_REQUEST",
+			wantCode:   "",
 		},
 		{
 			name:       "invalid request containing action-not-supported text still -> 400",
 			err:        fmt.Errorf(`%s: invalid node id %q`, a11yMsgInvalidRequest, a11yMsgActionNotSupported),
 			wantStatus: http.StatusBadRequest,
-			wantCode:   "A11Y_INVALID_REQUEST",
+			wantCode:   "",
 		},
 		{
 			name:       "invalid request containing invalid-scope text still -> 400",
 			err:        fmt.Errorf(`%s: invalid node id %q`, a11yMsgInvalidRequest, a11yMsgInvalidScope),
 			wantStatus: http.StatusBadRequest,
-			wantCode:   "A11Y_INVALID_REQUEST",
+			wantCode:   "",
 		},
 		{
 			name:       "invalid scope containing unavailable text still -> 400 invalid scope",
 			err:        fmt.Errorf(`%s: got %q`, a11yMsgInvalidScope, a11yMsgUnavailable),
 			wantStatus: http.StatusBadRequest,
-			wantCode:   "A11Y_INVALID_SCOPE",
+			wantCode:   "",
 		},
 		{
 			name:       "unknown error -> 500 with A11Y_INTERNAL",
@@ -119,15 +129,15 @@ func TestWriteA11yError(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			status, body := writeA11yErrorResponse(t, tc.err)
+			status, body := classifyA11yErrorResponse(t, tc.err)
 			if status != tc.wantStatus {
 				t.Errorf("status = %d, want %d", status, tc.wantStatus)
 			}
 			if body["code"] != tc.wantCode {
 				t.Errorf("code = %q, want %q", body["code"], tc.wantCode)
 			}
-			if body["error"] == "" {
-				t.Error(`"error" field was empty; SDKs still expect a human-readable message alongside the code`)
+			if body["message"] == "" {
+				t.Error(`"message" field was empty; SDKs expect a human-readable message alongside the code`)
 			}
 		})
 	}

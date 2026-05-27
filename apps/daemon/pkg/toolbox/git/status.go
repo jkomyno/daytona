@@ -20,6 +20,9 @@ import (
 //	@Produce		json
 //	@Param			path	query		string	true	"Repository path"
 //	@Success		200		{object}	git.GitStatus
+//	@Failure		400		{object}	common.ErrorResponse
+//	@Failure		404		{object}	common.ErrorResponse
+//	@Failure		500		{object}	common.ErrorResponse
 //	@Router			/git/status [get]
 //
 //	@id				GetStatus
